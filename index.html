@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY MONEY MANAGER - 23101308 엄준혁</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --income: #16a34a;
+            --expense: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .card h3 {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .card .amount {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .income-text { color: var(--income); }
+        .expense-text { color: var(--expense); }
+        .balance-text { color: var(--primary); }
+
+        .input-section {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .input-section h2 {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        select, input {
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary);
+        }
+
+        select { width: 110px; }
+        input[type="text"] { flex: 1; min-width: 180px; }
+        input[type="number"] { width: 150px; }
+
+        button.add-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button.add-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .history-section {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .history-header h2 {
+            font-size: 16px;
+        }
+
+        .count-badge {
+            font-size: 13px;
+            background: #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        th {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-income {
+            background: #dcfce7;
+            color: var(--income);
+        }
+
+        .badge-expense {
+            background: #fee2e2;
+            color: var(--expense);
+        }
+
+        .del-btn {
+            background: none;
+            border: 1px solid #cbd5e1;
+            color: #64748b;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .del-btn:hover {
+            background: #fee2e2;
+            color: var(--expense);
+            border-color: #fca5a5;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>💰 MY MONEY MANAGER</h1>
+        <p>컴퓨터소프트웨어학과 23101308 엄준혁 | 웹 기반 가계부 프로그램</p>
+    </header>
+
+    <div class="summary-grid">
+        <div class="card">
+            <h3>총 수입</h3>
+            <div class="amount income-text" id="totalIncome">0원</div>
+        </div>
+        <div class="card">
+            <h3>총 지출</h3>
+            <div class="amount expense-text" id="totalExpense">0원</div>
+        </div>
+        <div class="card">
+            <h3>현재 잔액</h3>
+            <div class="amount balance-text" id="currentBalance">0원</div>
+        </div>
+    </div>
+
+    <div class="input-section">
+        <h2>새로운 거래 내역 등록</h2>
+        <div class="form-row">
+            <select id="typeInput">
+                <option value="income">수입 (+)</option>
+                <option value="expense">지출 (-)</option>
+            </select>
+            <input type="text" id="descInput" placeholder="상세 항목 (예: 용돈, 점심 식사)">
+            <input type="number" id="amountInput" placeholder="금액 (원)" min="1">
+            <button class="add-btn" onclick="addRecord()">등록</button>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div class="history-header">
+            <h2>거래 내역 목록</h2>
+            <span class="count-badge" id="recordCount">0 / 100건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 60px;">번호</th>
+                    <th style="width: 80px;">구분</th>
+                    <th>상세 항목</th>
+                    <th style="text-align: right;">금액</th>
+                    <th style="width: 70px; text-align: center;">관리</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+            </tbody>
+        </table>
+        <div id="emptyMessage" class="empty-msg">등록된 거래 내역이 없습니다.</div>
+    </div>
+</div>
+
+<script>
+    const MAX_RECORDS = 100;
+    let transactions = JSON.parse(localStorage.getItem('myMoneyData')) || [];
+
+    window.onload = function() {
+        updateUI();
+    };
+
+    function addRecord() {
+        if (transactions.length >= MAX_RECORDS) {
+            alert("최대 100개의 내역까지만 저장할 수 있습니다.");
+            return;
+        }
+
+        const type = document.getElementById('typeInput').value;
+        const desc = document.getElementById('descInput').value.trim();
+        const amount = parseInt(document.getElementById('amountInput').value);
+
+        if (!desc) {
+            alert("상세 항목을 입력해 주세요.");
+            document.getElementById('descInput').focus();
+            return;
+        }
+
+        if (isNaN(amount) || amount <= 0) {
+            alert("올바른 금액을 입력해 주세요.");
+            document.getElementById('amountInput').focus();
+            return;
+        }
+
+        const newTransaction = {
+            id: Date.now(),
+            type: type,
+            description: desc,
+            amount: amount
+        };
+
+        transactions.push(newTransaction);
+        saveData();
+        updateUI();
+
+        document.getElementById('descInput').value = '';
+        document.getElementById('amountInput').value = '';
+        document.getElementById('descInput').focus();
+    }
+
+    function showBalance() {
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        transactions.forEach(item => {
+            if (item.type === 'income') {
+                totalIncome += item.amount;
+            } else {
+                totalExpense += item.amount;
+            }
+        });
+
+        const balance = totalIncome - totalExpense;
+
+        document.getElementById('totalIncome').innerText = totalIncome.toLocaleString() + '원';
+        document.getElementById('totalExpense').innerText = totalExpense.toLocaleString() + '원';
+        document.getElementById('currentBalance').innerText = balance.toLocaleString() + '원';
+    }
+
+    function showHistory() {
+        const tbody = document.getElementById('historyBody');
+        const emptyMsg = document.getElementById('emptyMessage');
+        const countBadge = document.getElementById('recordCount');
+
+        tbody.innerHTML = '';
+        countBadge.innerText = `${transactions.length} / ${MAX_RECORDS}건`;
+
+        if (transactions.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        } else {
+            emptyMsg.style.display = 'none';
+        }
+
+        transactions.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            const isIncome = item.type === 'income';
+            const badgeClass = isIncome ? 'badge-income' : 'badge-expense';
+            const typeText = isIncome ? '수입' : '지출';
+            const sign = isIncome ? '+' : '-';
+            const amountColor = isIncome ? 'income-text' : 'expense-text';
+
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td><span class="badge ${badgeClass}">${typeText}</span></td>
+                <td>${item.description}</td>
+                <td style="text-align: right; font-weight: 600;" class="${amountColor}">
+                    ${sign}${item.amount.toLocaleString()}원
+                </td>
+                <td style="text-align: center;">
+                    <button class="del-btn" onclick="deleteRecord(${item.id})">삭제</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function deleteRecord(id) {
+        transactions = transactions.filter(item => item.id !== id);
+        saveData();
+        updateUI();
+    }
+
+    function saveData() {
+        localStorage.setItem('myMoneyData', JSON.stringify(transactions));
+    }
+
+    function updateUI() {
+        showBalance();
+        showHistory();
+    }
+
+    document.getElementById('amountInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            addRecord();
+        }
+    });
+</script>
+
+</body>
+</html>
+
